@@ -1,5 +1,7 @@
 package database
 
-func dummyDb() {
+import "fmt"
 
+func dummyDb() {
+	fmt.Println("dummyDb")
 }
