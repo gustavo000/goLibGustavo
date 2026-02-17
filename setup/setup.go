@@ -17,6 +17,11 @@ func InitServer() {
 	port := ":8080"
 	fmt.Printf("Server starting on port %s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
+
+}
+
+func StartServer() {
+
 }
 
 // Home page handler
