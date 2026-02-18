@@ -3,9 +3,6 @@ package middleware
 import (
 	"context"
 	"net/http"
-	"time"
-
-	"github.com/gustavo000/goLibGustavo/models"
 )
 
 func AuthMiddleware(next http.Handler) http.Handler {
