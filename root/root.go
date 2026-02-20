@@ -1,12 +1,62 @@
 package root
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/gustavo000/goLibGustavo/init/external_services"
+	"github.com/gustavo000/goLibGustavo/models/properties"
+	"github.com/gustavo000/goLibGustavo/models/rest"
 )
 
-func InitServer() {
+var service = []*rest.Service{
+	{
+		Name:    "Core",
+		Ingress: "http://cust-rtmn-orch-dl-core-{release}-service.{namespace}.svc.cluster.local",
+		Path:    "/dl-core",
+		Timeout: 30,
+	},
+}
+
+func InitServer() error {
+	properties.NewProperties(
+		properties.WithServiceName("github.com/gustavo000/goLibGustavo"),
+		properties.WithBasePath("/library"),
+		properties.WithPort("8080"),
+		properties.WithNameSpace("orch"),
+		properties.WithRelease("r1"),
+		properties.WithVersion(getCurrentVersion()),
+		properties.WithEnvironment("PROD"),
+		properties.WithServices(service...))
+	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
+	app := routing.InitIris(
+		routes.WithBasePathAndRoutes(properties.GetProperty().GetBasePath(), nil))
+
+	defer func() {
+		if err := shutdown(context.Background()); err != nil {
+			log.Error().Msg(fmt.Sprintf("failed to shutdown TracerProvider: %v", err.Error()))
+		}
+	}()
+
+	errListen := app.Listen(":" + properties.GetProperty().GetPort())
+	return errListen
+}
+
+func getCurrentVersion() string {
+	var res map[string]string
+	bytes, _ := os.ReadFile("tag_version.json")
+	err := json.Unmarshal(bytes, &res)
+	if err != nil {
+		return ""
+	}
+	return res["version"]
+}
+
+func InitServer1() {
 	// Define route handlers
 
 	http.HandleFunc("/", homeHandler)

@@ -1,15 +1,15 @@
 package routing
 
 import (
-	"github.com/gustavo000/goLibGustavo/models"
-	health_check "github.com/gustavo000/goLibGustavo/services/health-check"
+	"github.com/gustavo000/goLibGustavo/models/rest"
+	health_check "github.com/gustavo000/goLibGustavo/services/health_check"
 )
 
-var controllers = models.Routes{
+var controllers = rest.Routes{
 	{
 		Method:  "GET",
 		Pattern: "/endpoints",
-		Controller: models.Controller{
+		Controller: rest.Controller{
 			Name:        "GetAllEndpoints",
 			Service:     GetAllEndpoints,
 			SkipHandler: true,
@@ -18,7 +18,7 @@ var controllers = models.Routes{
 	{
 		Method:  "GET",
 		Pattern: "/healthcheck",
-		Controller: models.Controller{
+		Controller: rest.Controller{
 			Name:        "HealthCheck",
 			Service:     health_check.CheckStatus,
 			SkipHandler: true,

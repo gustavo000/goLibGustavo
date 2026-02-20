@@ -1,4 +1,4 @@
-package models
+package rest
 
 import (
 	"net/http"

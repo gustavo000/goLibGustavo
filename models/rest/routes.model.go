@@ -1,4 +1,4 @@
-package models
+package rest
 
 type Routes []Route
 type Route struct {

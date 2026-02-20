@@ -1,4 +1,4 @@
-package models
+package rest
 
 import "net/http"
 
@@ -10,6 +10,8 @@ type Service struct {
 	Client     *http.Client
 	IsExternal bool
 	Middleware bool
+	Ingress    string
+	Layer      string
 }
 
 type Endpoint struct {
