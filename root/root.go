@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/gustavo000/goLibGustavo/init/external_services"
+	"github.com/gustavo000/goLibGustavo/init/net_http"
 	"github.com/gustavo000/goLibGustavo/models/properties"
 	"github.com/gustavo000/goLibGustavo/models/rest"
 )
@@ -33,7 +34,7 @@ func InitServer() error {
 		properties.WithEnvironment("PROD"),
 		properties.WithServices(service...))
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
-	app := routing.InitIris(
+	app := net_http.StartHttp(
 		routes.WithBasePathAndRoutes(properties.GetProperty().GetBasePath(), nil))
 
 	defer func() {

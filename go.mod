@@ -3,6 +3,7 @@ module github.com/gustavo000/goLibGustavo
 go 1.25.0
 
 require (
+	github.com/rs/zerolog v1.33.0
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect

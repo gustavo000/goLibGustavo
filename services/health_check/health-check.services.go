@@ -17,8 +17,6 @@ func CheckStatus(w http.ResponseWriter, r *http.Request) *rest.Response {
 	responseMap["version"] = properties.GetProperty().GetVersion()
 	responseMap["status"] = "UP"
 	responseMap["deployedAt"] = properties.GetProperty().GetStartUpTime()
-	responseMap["dependencies"] = functions.GetDependencies()
 	responseMap["name"] = properties.GetProperty().GetName()
-	responseMap["performanceStats"] = getPerformanceStats()
 	return functions.GenerateHttpResponse(200, responseMap)
 }
