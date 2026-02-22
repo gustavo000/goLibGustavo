@@ -20,14 +20,15 @@ var service = []*rest.Service{
 }
 
 func InitServer(routes rest.Routes) {
+	envs := getEnviroment()
 	properties.NewProperties(
-		properties.WithServiceName("github.com/gustavo000/goLibGustavo"),
-		properties.WithBasePath("/library"),
-		properties.WithPort("8080"),
-		properties.WithNameSpace("orch"),
-		properties.WithRelease("r1"),
+		properties.WithServiceName(envs["name"]),
+		properties.WithBasePath(envs["basePath"]),
+		properties.WithPort(envs["port"]),
+		properties.WithNameSpace(envs["namespace"]),
+		properties.WithRelease(envs["release"]),
 		properties.WithVersion(getCurrentVersion()),
-		properties.WithEnvironment("PROD"),
+		properties.WithEnvironment(envs["defaultEnvironment"]),
 		properties.WithServices(service...))
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
 	net_http.StartHttp(routes)
@@ -41,4 +42,14 @@ func getCurrentVersion() string {
 		return ""
 	}
 	return res["version"]
+}
+
+func getEnviroment() map[string]string {
+	var res map[string]string
+	bytes, _ := os.ReadFile("environment/dev.properties.json")
+	err := json.Unmarshal(bytes, &res)
+	if err != nil {
+		return nil
+	}
+	return res
 }

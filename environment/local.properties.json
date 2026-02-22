@@ -1,0 +1,8 @@
+{
+  "name": "lib",
+  "basePath": "/v1",
+  "port": "8080",
+  "namespace": "gustav",
+  "release": "r1",
+  "defaultEnvironment": "TEST"
+}
