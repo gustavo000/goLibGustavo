@@ -27,11 +27,11 @@ func Auth(next http.Handler) http.Handler {
 		}
 
 		token := strings.TrimPrefix(authHeader, "Bearer ")
-
-		if !strings.HasPrefix(token, "token-") {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
+		/*
+			if !strings.HasPrefix(token, "token-") {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}*/
 
 		ctx := context.WithValue(r.Context(), UserKey, token)
 		next.ServeHTTP(w, r.WithContext(ctx))

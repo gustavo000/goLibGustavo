@@ -132,7 +132,7 @@ func StartHttp(routes rest.Routes) {
 		middleware.Recovery,
 		middleware.RequestID,
 		middleware.Logging,
-		middleware.RateLimit(10, time.Minute),
+		middleware.RateLimit(100, time.Minute),
 		middleware.Auth,
 	)
 
@@ -150,6 +150,5 @@ func StartHttp(routes rest.Routes) {
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed: %v", err)
 	}
-	
-}
 
+}
