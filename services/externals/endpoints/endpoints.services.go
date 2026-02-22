@@ -1,11 +1,11 @@
 package endpoints
 
+/*
 import (
 	"github.com/google/uuid"
-	headers_request "github.com/gustavo000/goLibGustavo/pkg/headers_request"
 	"github.com/gustavo000/goLibGustavo/models"
-	"github.com/gustavo000/goLibGustavo/resources/properties"
-	auxiliar_url "github.com/gustavo000/goLibGustavo/services/externals/auxiliar_url"
+	"github.com/gustavo000/goLibGustavo/pkg/headers_request"
+	"github.com/gustavo000/goLibGustavo/services/externals/auxiliar_url"
 )
 
 func GetEndpoints(service *properties.Service, environment string) *properties.Service {
@@ -33,3 +33,4 @@ func GetEndpoints(service *properties.Service, environment string) *properties.S
 	}
 	return service
 }
+*/

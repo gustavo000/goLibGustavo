@@ -1,5 +1,6 @@
 package url_helper
 
+/*
 import (
 	"fmt"
 	"github.com/gustavo000/goLibGustavo/pkg/http_layer"
@@ -118,3 +119,4 @@ func GetServiceByLayerAndName(layerName string, serviceName string) *properties.
 	}
 	return serviceResult
 }
+*/

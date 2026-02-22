@@ -2,13 +2,11 @@ package external_services
 
 import (
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/gustavo000/goLibGustavo/models/properties"
 	"github.com/gustavo000/goLibGustavo/models/rest"
-	"github.com/gustavo000/goLibGustavo/services/externals/endpoints"
 )
 
 func GetEndpointsOfServices(environment string) {
@@ -25,9 +23,9 @@ func GetEndpointsOfServices(environment string) {
 				timeout := time.Second * time.Duration(service.Timeout)
 				service.Client = &http.Client{Timeout: timeout}
 			}
-			if !strings.Contains(strings.ToLower(service.Layer), "external") {
-				service = endpoints.GetEndpoints(service, environment)
-			}
+			/*			if !strings.Contains(strings.ToLower(service.Layer), "external") {
+						service = endpoints.GetEndpoints(service, environment)
+					}*/
 			mutex.Lock()
 			properties.GetProperty().External.Services[i] = service
 			mutex.Unlock()

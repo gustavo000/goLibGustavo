@@ -1,14 +1,13 @@
 package net_http
 
 import (
+	"io"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gustavo000/goLibGustavo/middleware"
 	"github.com/gustavo000/goLibGustavo/models/rest"
-	"github.com/gustavo000/goLibGustavo/routing"
 )
 
 // Config holds server configuration
@@ -97,12 +96,34 @@ func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // Start the server
-func StartHttp(routes rest.Routes) interface{} {
-
+func StartHttp(routes rest.Routes) {
 	// Create router
 	mux := http.NewServeMux()
-	for _, route := range routes {
-		mux.Handle(route.Pattern, route.Controller.Service)
+	for _, rt := range routes {
+		route := rt
+		mux.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
+			if route.Method != "" && r.Method != route.Method {
+				http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+				return
+			}
+			resp := route.Controller.Service(w, r)
+			if resp == nil || resp.GetHttp() == nil {
+				http.Error(w, "empty response", http.StatusInternalServerError)
+				return
+			}
+			for k, vals := range resp.GetHeader() {
+				for _, v := range vals {
+					w.Header().Add(k, v)
+				}
+			}
+			if w.Header().Get("Content-Type") == "" {
+				w.Header().Set("Content-Type", "application/json")
+			}
+			w.WriteHeader(resp.GetHttp().StatusCode)
+			if body := resp.CopyBody(); body != nil {
+				_, _ = io.Copy(w, body)
+			}
+		})
 	}
 
 	// Apply middleware chain
@@ -124,12 +145,11 @@ func StartHttp(routes rest.Routes) interface{} {
 		IdleTimeout:  120 * time.Second,
 	}
 
-	// Start server
-	go func() {
-		log.Println("Server starting on :8080")
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server failed: %v", err)
-		}
-	}()
-
+	// Start server (blocking)
+	log.Println("Server starting on :8080")
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Server failed: %v", err)
+	}
+	
 }
+

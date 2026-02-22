@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
 // Config holds server configuration
-type Config struct {
+type Config2 struct {
 	Port         string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
@@ -17,7 +16,7 @@ type Config struct {
 }
 
 // DefaultConfig returns a default configuration
-func DefaultConfig() *Config {
+func DefaultConfig2() *Config {
 	return &Config{
 		Port:         ":8080",
 		ReadTimeout:  15 * time.Second,
@@ -27,13 +26,13 @@ func DefaultConfig() *Config {
 }
 
 // App represents the application
-type App struct {
+type App2 struct {
 	config *Config
 	router *http.ServeMux
 }
 
 // NewApp creates a new application instance
-func NewApp(config *Config) *App {
+func NewApp2(config *Config) *App {
 	if config == nil {
 		config = DefaultConfig()
 	}
@@ -45,14 +44,14 @@ func NewApp(config *Config) *App {
 }
 
 // ErrorResponse represents an error response
-type ErrorResponse struct {
+type ErrorResponse2 struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
 	Status  int    `json:"status"`
 }
 
 // CORS middleware
-func (app *App) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func (app *App) corsMiddleware2(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Set CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", "*") // Change this in production!
@@ -72,7 +71,7 @@ func (app *App) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // Error handler middleware
-func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
+func (app *App) errorHandler2(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -256,21 +255,4 @@ func (app *App) loggingMiddleware(next http.Handler) http.Handler {
 		// Log the request
 		log.Printf("%s %s %d %s", r.Method, r.URL.Path, crw.statusCode, time.Since(start))
 	})
-}
-
-func main() {
-	// Load configuration
-	config := DefaultConfig()
-
-	// Override with environment variables if needed
-	if port := os.Getenv("PORT"); port != "" {
-		config.Port = ":" + port
-	}
-
-	// Create and start the app
-	app := NewApp(config)
-
-	if err := app.Start(); err != nil {
-		log.Fatal("Server failed to start:", err)
-	}
 }
