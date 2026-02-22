@@ -34,6 +34,8 @@ func InitServer(routes rest.Routes) {
 	net_http.StartHttp(routes)
 }
 
+//
+
 func getCurrentVersion() string {
 	var res map[string]string
 	bytes, _ := os.ReadFile("tag_version.json")
