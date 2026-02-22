@@ -122,30 +122,46 @@ func Debugf(format string, v ...interface{}) {
 	logger.Debug().Msgf(format, v...)
 }
 
-// With returns a logger with additional fields
-func With(fields map[string]interface{}) zerolog.Logger {
-	event := logger.With()
-	for k, v := range fields {
-		event = event.Interface(k, v)
+func Error(msg string, err error, fields ...map[string]interface{}) {
+	event := logger.Error()
+	if err != nil {
+		event = event.Err(err)
 	}
-	return event.Logger()
+	for _, field := range fields {
+		for k, v := range field {
+			event = event.Interface(k, v)
+		}
+	}
+	event.Msg(msg)
 }
 
-// GetLogger returns the underlying zerolog.Logger instance
-func GetLogger() zerolog.Logger {
-	return logger
+func Fatal(msg string, err error, fields ...map[string]interface{}) {
+	event := logger.Fatal()
+	if err != nil {
+		event = event.Err(err)
+	}
+	for _, field := range fields {
+		for k, v := range field {
+			event = event.Interface(k, v)
+		}
+	}
+	event.Msg(msg)
 }
 
-// Legacy compatibility functions that accept any type like the original
-func InfoAny(v ...any) {
+// Legacy compatibility methods (maintaining your original API)
+func InfoLegacy(v ...interface{}) {
 	logger.Info().Msgf("%v", v...)
 }
 
-func WarningAny(v ...any) {
+func WarningLegacy(v ...interface{}) {
 	logger.Warn().Msgf("%v", v...)
 }
 
-func DangerAny(v ...any) {
+func DangerLegacy(v ...interface{}) {
 	logger.Error().Msgf("%v", v...)
 }
 
+// GetLogger returns the configured zerolog instance
+func GetLogger() zerolog.Logger {
+	return logger
+}

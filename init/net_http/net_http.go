@@ -1,8 +1,14 @@
 package net_http
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/gustavo000/goLibGustavo/middleware"
+	"github.com/gustavo000/goLibGustavo/models/rest"
+	"github.com/gustavo000/goLibGustavo/routing"
 )
 
 // Config holds server configuration
@@ -90,6 +96,40 @@ func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func StartHttp(i any) interface{} {
+// Start the server
+func StartHttp(routes rest.Routes) interface{} {
+
+	// Create router
+	mux := http.NewServeMux()
+	for _, route := range routes {
+		mux.Handle(route.Pattern, route.Controller.Service)
+	}
+
+	// Apply middleware chain
+	handler := middleware.Chain(
+		mux,
+		middleware.Recovery,
+		middleware.RequestID,
+		middleware.Logging,
+		middleware.RateLimit(10, time.Minute),
+		middleware.Auth,
+	)
+
+	// Configure server
+	server := &http.Server{
+		Addr:         ":8080",
+		Handler:      handler,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
+	// Start server
+	go func() {
+		log.Println("Server starting on :8080")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
 
 }

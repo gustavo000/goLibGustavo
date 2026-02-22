@@ -20,7 +20,7 @@ import (
 )
 
 type IHttpTransport interface {
-	WithContext(ctx http.Request) IHttpTransport
+	WithContext(ctx *http.Request) IHttpTransport
 	WithBody(body []byte) IHttpTransport
 	WithHeaders(headers headers_request.RequestHeaders) IHttpTransport
 	WithParentSpan(span *rest.SpanInfo) IHttpTransport
@@ -39,7 +39,7 @@ type HttpClient struct {
 	ExternalService   string
 	RequestBody       []byte
 	Timeout           int64
-	Context           http.Request
+	Context           context.Context
 	HttpRequest       *http.Request
 	Headers           headers_request.RequestHeaders
 	Client            *http.Client
@@ -57,18 +57,10 @@ func GetHttpClient(service *rest.Service, url string) *HttpClient {
 	}
 }
 
-func (h *HttpClient) WithContext(ctx iris.Context) IHttpTransport {
+func (h *HttpClient) WithContext(ctx *http.Request) IHttpTransport {
 	if ctx != nil {
-		h.HttpRequest = ctx.Request()
-		h.Context = ctx
-	}
-	return h
-}
-
-func (h *HttpClient) WithContextGolang(ctx context.Context) IHttpTransport {
-	if ctx != nil {
-		h.HttpRequest = ctx.()
-		h.Context = ctx
+		h.HttpRequest = ctx
+		h.Context = ctx.Context()
 	}
 	return h
 }

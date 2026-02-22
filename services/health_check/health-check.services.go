@@ -12,7 +12,12 @@ func HealthCheck() {
 
 }
 
-func CheckStatus(w http.ResponseWriter, r *http.Request) *rest.Response {
+type HealthHandler struct{}
+
+func NewLHealthHandler() *HealthHandler {
+	return &HealthHandler{}
+}
+func (h *HealthHandler) CheckStatus(w http.ResponseWriter, r *http.Request) *rest.Response {
 	responseMap := make(map[string]any)
 	responseMap["version"] = properties.GetProperty().GetVersion()
 	responseMap["status"] = "UP"

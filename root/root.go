@@ -12,6 +12,7 @@ import (
 	"github.com/gustavo000/goLibGustavo/init/net_http"
 	"github.com/gustavo000/goLibGustavo/models/properties"
 	"github.com/gustavo000/goLibGustavo/models/rest"
+	"github.com/gustavo000/goLibGustavo/routing"
 )
 
 var service = []*rest.Service{
@@ -23,7 +24,7 @@ var service = []*rest.Service{
 	},
 }
 
-func InitServer() error {
+func InitServer(routes rest.Routes) error {
 	properties.NewProperties(
 		properties.WithServiceName("github.com/gustavo000/goLibGustavo"),
 		properties.WithBasePath("/library"),
@@ -34,8 +35,7 @@ func InitServer() error {
 		properties.WithEnvironment("PROD"),
 		properties.WithServices(service...))
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
-	app := net_http.StartHttp(
-		routes.WithBasePathAndRoutes(properties.GetProperty().GetBasePath(), nil))
+	app := net_http.StartHttp(routes)
 
 	defer func() {
 		if err := shutdown(context.Background()); err != nil {

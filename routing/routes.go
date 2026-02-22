@@ -2,10 +2,10 @@ package routing
 
 import (
 	"github.com/gustavo000/goLibGustavo/models/rest"
-	health_check "github.com/gustavo000/goLibGustavo/services/health_check"
+	"github.com/gustavo000/goLibGustavo/services/health_check"
 )
 
-var controllers = rest.Routes{
+var DefaultRoutes = rest.Routes{
 	{
 		Method:  "GET",
 		Pattern: "/endpoints",
@@ -25,3 +25,5 @@ var controllers = rest.Routes{
 		},
 	},
 }
+
+var InternalRoutes = rest.Routes{}
