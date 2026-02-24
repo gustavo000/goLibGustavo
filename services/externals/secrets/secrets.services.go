@@ -1,6 +1,6 @@
 package secrets
 
-import (
+/*import (
 	"github.com/google/uuid"
 	"github.com/gustavo000/goLibGustavo/models"
 	"github.com/gustavo000/goLibGustavo/models/rest"
@@ -29,3 +29,4 @@ func GetSecretFromEnvironment(secret *properties.Secret) *rest.Response {
 	client := auxiliar_url.GetClientBy(helperUrl)
 	return client.WithHeaders(requestHeaders).MakeGet()
 }
+*/

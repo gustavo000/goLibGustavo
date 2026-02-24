@@ -1,5 +1,6 @@
 package auxiliar_url
 
+/*
 import (
 	"fmt"
 	"github.com/gustavo000/goLibGustavo/models"
@@ -94,3 +95,4 @@ func GetServiceByLayerAndName(layerName string, serviceName string) *properties.
 	}
 	return serviceResult
 }
+*/
