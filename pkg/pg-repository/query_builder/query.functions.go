@@ -3,17 +3,20 @@ package query_builder
 import (
 	context2 "context"
 	"encoding/json"
-	"github.com/google/uuid"
+
+	"github.com/gustavo000/goLibGustavo/pkg/functions"
+	"github.com/gustavo000/goLibGustavo/pkg/pg-repository/connection"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"cust-rtmn-orch-library/libs/functions"
-	"cust-rtmn-orch-library/libs/pg-repository/connection"
+
 	"reflect"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func (q *query) setOnContext(key string, value any) {
@@ -110,7 +113,7 @@ func (q *query) executeCommand() (commandTag pgconn.CommandTag, conn *pgxpool.Co
 		spanCtx = s.(context2.Context)
 	}
 	resultQuery := strings.Join(q.queryParts, " ") + ";"
-	pool, err := connection.PerformConnection(spanCtx, q.database)
+	pool, err := connection.PerformConnection(spanCtx, q.database, "g", "g", "localhost", "5432")
 	if err != nil {
 		return commandTag, conn, err
 	}

@@ -28,12 +28,6 @@ func DefaultConfig() *Config {
 	}
 }
 
-// App represents the application
-type App struct {
-	config *Config
-	router *http.ServeMux
-}
-
 // NewApp creates a new application instance
 func NewApp(config *Config) *App {
 	if config == nil {
@@ -51,6 +45,12 @@ type ErrorResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
 	Status  int    `json:"status"`
+}
+
+// App represents the application
+type App struct {
+	config *Config
+	router *http.ServeMux
 }
 
 // CORS middleware
@@ -131,6 +131,7 @@ func StartHttp(routes rest.Routes) {
 		mux,
 		middleware.Recovery,
 		middleware.RequestID,
+		middleware.CORS,
 		middleware.Logging,
 		middleware.RateLimit(100, time.Minute),
 		middleware.Auth,

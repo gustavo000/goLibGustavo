@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
+	
+	"github.com/jackc/pgx/v5"
 	"github.com/kataras/iris/v12"
 
-	"cust-rtmn-orch-library/constants"
-	open_telemetry_span "cust-rtmn-orch-library/libs/open-telemetry-span"
-	"cust-rtmn-orch-library/resources/properties"
+	"github.com/gustavo000/goLibGustavo/constants"
 )
 
 const (
@@ -73,14 +72,6 @@ func QueryBuilder(ctx iris.Context) *query {
 }
 
 func (q *query) WithDatabase(database string) *query {
-	switch properties.GetProperty().GetEnv() {
-	case "TEST":
-		database += "-uat"
-	case "BETA":
-		database += "-beta"
-	case "PROD":
-		database += "-prod"
-	}
 	q.database = database
 	return q
 }
@@ -401,8 +392,6 @@ func (q *query) Returning(field string) *query {
 }
 
 func (q *query) Perform() (any, error) {
-	spanChild := open_telemetry_span.StartChildSpan(q.ctx)
-	defer open_telemetry_span.EndChildSpan(spanChild)
 	resultQuery := strings.Join(q.queryParts, " ") + ";"
 	q.setOnContext(constants.QUERY_SYNTAX, resultQuery)
 	queryJobTime := time.Now()

@@ -2,9 +2,9 @@ package connection
 
 import (
 	context2 "context"
-	"cust-rtmn-orch-library/resources/properties"
-	"cust-rtmn-orch-library/resources/secrets"
+	"database/sql"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -20,16 +20,37 @@ type connection struct {
 	Pool *pgxpool.Pool
 }
 
-func getPool(ctx context2.Context, database string) (*pgxpool.Pool, error) {
-	ip := secrets.GetSecretValue("pgIp")
-	if properties.GetProperty().IsLocal() {
-		ip = "localhost"
+func ConnectDb(username string, password string, host string, port string, dbname string) (*sql.DB, error) {
+
+	// Build connection string with Sprintf
+	connStr := fmt.Sprintf(
+		"user=%s password=%s host=%s port=%s dbname=%s sslmode=disable",
+		username, password, host, port, dbname,
+	)
+
+	// Open a database connection
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal("Failed to open database connection:", err)
 	}
+	defer db.Close() // Always close when done
+
+	// Verify the connection is alive
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Cannot connect to database:", err)
+	}
+
+	fmt.Println("Successfully connected to PostgreSQL!")
+	return db, nil
+}
+
+func getPool(ctx context2.Context, database string, pgUser string, pgPassword string, pgIp string, port string) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		ip,
-		secrets.GetSecretValue("pgPort"),
-		secrets.GetSecretValue("pgUser"),
-		secrets.GetSecretValue("pgPass"),
+		pgIp,
+		port,
+		pgUser,
+		pgPassword,
 		database)
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
@@ -47,7 +68,7 @@ func getPool(ctx context2.Context, database string) (*pgxpool.Pool, error) {
 	return conn, nil
 }
 
-func PerformConnection(ctx context2.Context, database string) (pool *pgxpool.Pool, err error) {
+func PerformConnection(ctx context2.Context, database string, pgUser string, pgPassword string, pgIp string, port string) (pool *pgxpool.Pool, err error) {
 	mutex.Lock()
 	connection := connections[database]
 	mutex.Unlock()
@@ -57,7 +78,7 @@ func PerformConnection(ctx context2.Context, database string) (pool *pgxpool.Poo
 	if pool != nil {
 		return pool, nil
 	}
-	pool, err = getPool(ctx, database)
+	pool, err = getPool(ctx, database, pgUser, pgPassword, pgIp, port)
 	if err == nil {
 		mutex.Lock()
 		connections[database] = cacheConnection(pool)

@@ -12,9 +12,9 @@ import (
 
 var service = []*rest.Service{
 	{
-		/*		Name:    "Core",
-				Ingress: "http://cust-rtmn-orch-dl-core-{release}-service.{namespace}.svc.cluster.local",
-				Path:    "/dl-core",
+		/*		Name:    "",
+				Ingress: "http://",
+				Path:    "/",
 				Timeout: 30,*/
 	},
 }
