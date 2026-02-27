@@ -1,17 +1,17 @@
 package auxiliar_url
 
-/*
 import (
 	"fmt"
-	"github.com/gustavo000/goLibGustavo/models"
-	http_layer "github.com/gustavo000/goLibGustavo/pkg/http_layer"
-	"github.com/gustavo000/goLibGustavo/resources/properties"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gustavo000/goLibGustavo/models/properties"
+	"github.com/gustavo000/goLibGustavo/models/rest"
+	"github.com/gustavo000/goLibGustavo/pkg/http_layer"
 )
 
-func GetClientBy(helperUrl models.Url) *http_layer.HttpClient {
+func GetClientBy(helperUrl rest.Url) *http_layer.HttpClient {
 	var url string
 	service := GetServiceByLayerAndName(helperUrl.LayerName, helperUrl.ServiceName)
 	url = SetIngress(url, helperUrl, service)
@@ -26,7 +26,7 @@ func GetClientBy(helperUrl models.Url) *http_layer.HttpClient {
 	return http_layer.GetHttpClient(service, url)
 }
 
-func SetIngress(url string, helperUrl models.Url, service *properties.Service) string {
+func SetIngress(url string, helperUrl rest.Url, service *properties.Service) string {
 	if properties.GetProperty().IsLocal() && !strings.Contains(service.Layer, "EXTERNAL") {
 		url += GetUrlByEnv()
 	} else {
@@ -37,12 +37,12 @@ func SetIngress(url string, helperUrl models.Url, service *properties.Service) s
 	return url
 }
 
-func SetEndpoint(url string, helperUrl models.Url, service *properties.Service) string {
+func SetEndpoint(url string, helperUrl rest.Url, service *properties.Service) string {
 	url += helperUrl.EndpointForce
 	return url
 }
 
-func SetPathParams(url string, helperUrl models.Url) string {
+func SetPathParams(url string, helperUrl rest.Url) string {
 	if len(helperUrl.ParserParams) > 0 {
 		for _, param := range helperUrl.ParserParams {
 			url = strings.ReplaceAll(url, param.Key, param.Value)
@@ -51,7 +51,7 @@ func SetPathParams(url string, helperUrl models.Url) string {
 	return url
 }
 
-func SetQueryParams(url string, helperUrl models.Url) string {
+func SetQueryParams(url string, helperUrl rest.Url) string {
 	if helperUrl.QueryForce != "" {
 		url += "?" + helperUrl.QueryForce
 	} else if len(helperUrl.QueryParams) > 0 {
@@ -95,4 +95,3 @@ func GetServiceByLayerAndName(layerName string, serviceName string) *properties.
 	}
 	return serviceResult
 }
-*/

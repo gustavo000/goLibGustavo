@@ -10,12 +10,12 @@ import (
 	"github.com/gustavo000/goLibGustavo/models/rest"
 )
 
-var service = []*rest.Service{
+var service = []*properties.Service{
 	{
-		/*		Name:    "",
-				Ingress: "http://",
-				Path:    "/",
-				Timeout: 30,*/
+		Name:    "Google",
+		Ingress: "http://www.google.com/",
+		Path:    "/",
+		Timeout: 30,
 	},
 }
 
@@ -33,8 +33,6 @@ func InitServer(routes rest.Routes) {
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
 	net_http.StartHttp(routes)
 }
-
-//
 
 func getCurrentVersion() string {
 	var res map[string]string

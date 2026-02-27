@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gustavo000/goLibGustavo/models"
-	"github.com/gustavo000/goLibGustavo/models/rest"
 )
 
 type InternalProperties struct {
@@ -25,7 +24,7 @@ type InternalProperties struct {
 }
 
 type ExternalProperties struct {
-	Services []*rest.Service
+	Services []*Service
 }
 
 type Properties struct {
@@ -76,7 +75,7 @@ func WithVersion(v string) PropsOption {
 	}
 }
 
-func WithServices(services ...*rest.Service) PropsOption {
+func WithServices(services ...*Service) PropsOption {
 	return func(properties *Properties) {
 		properties.External.Services = services
 	}

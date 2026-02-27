@@ -1,9 +1,9 @@
 package endpoints
 
-/*
 import (
 	"github.com/google/uuid"
-	"github.com/gustavo000/goLibGustavo/models"
+	"github.com/gustavo000/goLibGustavo/models/properties"
+	"github.com/gustavo000/goLibGustavo/models/rest"
 	"github.com/gustavo000/goLibGustavo/pkg/headers_request"
 	"github.com/gustavo000/goLibGustavo/services/externals/auxiliar_url"
 )
@@ -19,7 +19,7 @@ func GetEndpoints(service *properties.Service, environment string) *properties.S
 		headers_request.RequestHeader{Key: "X-Trace-Id", ForceValue: uuid.NewString()},
 		headers_request.RequestHeader{Key: "Content-Type", ForceValue: "application/json"},
 	)
-	helperUrl := models.Url{
+	helperUrl := rest.Url{
 		LayerName:     service.Layer,
 		ServiceName:   service.Name,
 		EndpointForce: "/endpoints",
@@ -33,4 +33,3 @@ func GetEndpoints(service *properties.Service, environment string) *properties.S
 	}
 	return service
 }
-*/

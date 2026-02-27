@@ -47,7 +47,7 @@ type HttpClient struct {
 	ParentSpan        *rest.SpanInfo
 }
 
-func GetHttpClient(service *rest.Service, url string) *HttpClient {
+func GetHttpClient(service *properties.Service, url string) *HttpClient {
 	return &HttpClient{
 		Url:               url,
 		ExternalService:   service.Name,

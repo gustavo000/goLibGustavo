@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gustavo000/goLibGustavo/models/properties"
-	"github.com/gustavo000/goLibGustavo/models/rest"
 )
 
 func GetEndpointsOfServices(environment string) {
@@ -14,7 +13,7 @@ func GetEndpointsOfServices(environment string) {
 	var mutex sync.RWMutex
 	group.Add(len(properties.GetProperty().External.Services))
 	for i, service := range properties.GetProperty().External.Services {
-		go func(i int, service *rest.Service) {
+		go func(i int, service *properties.Service) {
 			defer group.Done()
 			if service.Timeout == 0 {
 				service.Timeout = 10
