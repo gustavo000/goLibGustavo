@@ -5,7 +5,6 @@ import (
 
 	"github.com/gustavo000/goLibGustavo/models/properties"
 	"github.com/gustavo000/goLibGustavo/models/rest"
-	"github.com/gustavo000/goLibGustavo/pkg/functions"
 )
 
 func HealthCheck() {
@@ -17,11 +16,11 @@ type HealthHandler struct{}
 func NewLHealthHandler() *HealthHandler {
 	return &HealthHandler{}
 }
-func CheckStatus(w http.ResponseWriter, r *http.Request) *rest.Response {
+func CheckStatus(r *http.Request, res *rest.Response) *rest.Response {
 	responseMap := make(map[string]any)
 	responseMap["version"] = properties.GetProperty().GetVersion()
 	responseMap["status"] = "UP"
 	responseMap["deployedAt"] = properties.GetProperty().GetStartUpTime()
 	responseMap["name"] = properties.GetProperty().GetName()
-	return functions.GenerateHttpResponse(200, responseMap)
+	return res.WithStatus(http.StatusOK).WithBody(responseMap)
 }

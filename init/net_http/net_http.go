@@ -106,7 +106,8 @@ func StartHttp(routes rest.Routes) {
 				http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 				return
 			}
-			resp := route.Controller.Service(w, r)
+
+			resp := route.Controller.Service(r, &rest.Response{})
 			if resp == nil || resp.GetHttp() == nil {
 				http.Error(w, "empty response", http.StatusInternalServerError)
 				return

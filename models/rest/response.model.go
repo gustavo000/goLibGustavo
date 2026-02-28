@@ -30,6 +30,57 @@ type SpanInfo struct {
 	ParentSpanID trace.SpanID    `json:"parentSpanID"`
 }
 
+func (r *Response) WithStatus(status int) *Response {
+	msg := http.StatusText(status)
+	if msg == "" {
+		status = http.StatusInternalServerError
+		msg = http.StatusText(status)
+	}
+	return &Response{
+		Http: &http.Response{
+			Status:     msg,
+			StatusCode: status,
+			Header:     make(http.Header),
+			Body:       io.NopCloser(bytes.NewReader([]byte(msg))),
+		},
+	}
+}
+
+func (r *Response) WithMessage(message string) *Response {
+	return &Response{
+		Http: &http.Response{
+			Status:     message,
+			StatusCode: r.Http.StatusCode,
+			Header:     r.Http.Header,
+		},
+	}
+}
+
+func (r *Response) WithBody(body any) *Response {
+	var data []byte
+	switch b := body.(type) {
+	case string:
+		data = []byte(b)
+	case []byte:
+		data = b
+	default:
+		marshal, err := json.Marshal(b)
+		if err != nil {
+			marshal = []byte(http.StatusText(http.StatusInternalServerError))
+		}
+		data = marshal
+	}
+	return &Response{
+		Http: &http.Response{
+			Status:     r.GetHttp().Status,
+			StatusCode: r.GetHttp().StatusCode,
+			Header:     r.GetHttp().Header,
+			Body:       io.NopCloser(bytes.NewReader(data)),
+		},
+		Body: body,
+	}
+}
+
 func (r *Response) GetHttp() *http.Response {
 	var response *http.Response
 	response = r.Http

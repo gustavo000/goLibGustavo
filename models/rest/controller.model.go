@@ -8,7 +8,7 @@ import (
 type Controller struct {
 	TimeRequest time.Time
 	Name        string
-	Service     func(w http.ResponseWriter, r *http.Request) *Response
+	Service     func(r *http.Request, res *Response) *Response
 	//DefaultHeaders []headers_validator.Header
 	//CustomHeaders  []headers_validator.Header
 	LogTransaction bool
