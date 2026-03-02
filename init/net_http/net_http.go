@@ -1,6 +1,7 @@
 package net_http
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -101,7 +102,7 @@ func StartHttp(routes rest.Routes) {
 	mux := http.NewServeMux()
 	for _, rt := range routes {
 		route := rt
-		mux.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
+		mux.HandleFunc(fmt.Sprintf("%s %s", route.Method, route.Pattern), func(w http.ResponseWriter, r *http.Request) {
 			if route.Method != "" && r.Method != route.Method {
 				http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 				return
