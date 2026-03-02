@@ -1,14 +1,14 @@
 package query_builder
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
-	
-	"github.com/jackc/pgx/v5"
-	"github.com/kataras/iris/v12"
 
 	"github.com/gustavo000/goLibGustavo/constants"
+	"github.com/jackc/pgx/v5"
 )
 
 const (
@@ -57,15 +57,15 @@ type query struct {
 	queryArgs  []any
 	tableChar  string
 	tableCount int
-	ctx        iris.Context
+	ctx        context.Context
 	queryType  QueryType
 	namedArgs  pgx.NamedArgs
 	model      any
 	firstOnly  bool
 }
 
-func QueryBuilder(ctx iris.Context) *query {
-	q := &query{ctx: ctx}
+func QueryBuilder(ctx *http.Request) *query {
+	q := &query{ctx: ctx.Context()}
 	q.tableCount = 1
 	q.tableChar = strings.ToLower(string(toChar(q.tableCount)))
 	return q

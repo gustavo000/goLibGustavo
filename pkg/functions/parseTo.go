@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"runtime"
 	"strings"
 	"sync"
-
-	"github.com/kataras/iris/v12"
 )
 
 var mutexSpan sync.RWMutex
@@ -57,19 +57,24 @@ func CheckIfValueInConstant(value string, constant string) bool {
 	return isValid
 }
 
-// GetObjectFromContext retrieve the object presents on the context request
-func GetObjectFromContext(ctx iris.Context, v any) error {
-	body, errRead := ctx.GetBody()
-	if errRead != nil {
-		return errRead
+// GetObjectFromContext retrieves the object from the request body
+func GetObjectFromContext(r *http.Request, v any) error {
+	// 1. Read the body stream into a byte slice
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return err
 	}
-	errUnmarshal := json.Unmarshal(body, &v)
-	if errUnmarshal != nil {
-		return errUnmarshal
+
+	// 2. Ensure the body is closed to prevent memory leaks
+	defer r.Body.Close()
+
+	// 3. Unmarshal the bytes into your interface/struct
+	if err := json.Unmarshal(body, v); err != nil {
+		return err
 	}
+
 	return nil
 }
-
 func UnmarshalToObject(toDecode []byte, v any) error {
 	if json.Valid(toDecode) {
 		bufferOfBytes := &bytes.Buffer{}
