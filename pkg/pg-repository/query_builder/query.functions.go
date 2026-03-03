@@ -3,6 +3,7 @@ package query_builder
 import (
 	context2 "context"
 	"encoding/json"
+	"os"
 
 	"github.com/gustavo000/goLibGustavo/pkg/functions"
 	"github.com/gustavo000/goLibGustavo/pkg/pg-repository/connection"
@@ -19,11 +20,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func (q *query) setOnContext(key string, value any) {
-	if q.ctx != nil {
-		q.ctx.Values().Set(key, value)
-	}
-}
+func (q *query) setOnContext(key string, value any) {}
 
 func (q *query) generateMap(columns []Column) map[string]any {
 	mapped := make(map[string]any)
@@ -84,14 +81,34 @@ func (q *query) generateColumns(object any) []Column {
 	return columns
 }
 
+func getDbConfig() (user, password, host, port string) {
+	user = os.Getenv("PG_USER")
+	if user == "" {
+		user = "postgres"
+	}
+	password = os.Getenv("PG_PASSWORD")
+	if password == "" {
+		password = "postgres"
+	}
+	host = os.Getenv("PG_HOST")
+	if host == "" {
+		host = "localhost"
+	}
+	port = os.Getenv("PG_PORT")
+	if port == "" {
+		port = "5432"
+	}
+	return
+}
+
 func (q *query) executeQuery() (rows pgx.Rows, conn *pgxpool.Conn, err error) {
-	var spanCtx = context2.Background()
-	s := q.ctx.Values().Get("b3-last-span-ctx")
-	if s != nil {
-		spanCtx = s.(context2.Context)
+	var spanCtx = q.ctx
+	if spanCtx == nil {
+		spanCtx = context2.Background()
 	}
 	resultQuery := strings.Join(q.queryParts, " ") + ";"
-	pool, err := connection.PerformConnection(spanCtx, q.database)
+	u, p, h, prt := getDbConfig()
+	pool, err := connection.PerformConnection(spanCtx, q.database, u, p, h, prt)
 	if err != nil {
 		return rows, conn, err
 	}
@@ -107,13 +124,13 @@ func (q *query) executeQuery() (rows pgx.Rows, conn *pgxpool.Conn, err error) {
 }
 
 func (q *query) executeCommand() (commandTag pgconn.CommandTag, conn *pgxpool.Conn, err error) {
-	var spanCtx = context2.Background()
-	s := q.ctx.Values().Get("b3-last-span-ctx")
-	if s != nil {
-		spanCtx = s.(context2.Context)
+	var spanCtx = q.ctx
+	if spanCtx == nil {
+		spanCtx = context2.Background()
 	}
 	resultQuery := strings.Join(q.queryParts, " ") + ";"
-	pool, err := connection.PerformConnection(spanCtx, q.database, "g", "g", "localhost", "5432")
+	u, p, h, prt := getDbConfig()
+	pool, err := connection.PerformConnection(spanCtx, q.database, u, p, h, prt)
 	if err != nil {
 		return commandTag, conn, err
 	}
