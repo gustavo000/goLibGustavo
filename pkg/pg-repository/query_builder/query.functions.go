@@ -3,11 +3,13 @@ package query_builder
 import (
 	context2 "context"
 	"encoding/json"
+	"log"
 	"os"
 
 	"github.com/gustavo000/goLibGustavo/pkg/functions"
 	"github.com/gustavo000/goLibGustavo/pkg/pg-repository/connection"
 	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
 
 	"reflect"
 	"strings"
@@ -81,20 +83,21 @@ func (q *query) generateColumns(object any) []Column {
 	return columns
 }
 
-func getDbConfig() (user, password, host, port string) {
-	user = os.Getenv("PG_USER")
-	if user == "" {
-		user = "postgres"
+func getDbConfig() (user, password, host, port, name string) {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
 	}
-	password = os.Getenv("PG_PASSWORD")
-	if password == "" {
-		password = "postgres"
-	}
-	host = os.Getenv("PG_HOST")
+	user = os.Getenv("DB_USER")
+	password = os.Getenv("DB_PASSWORD")
+	host = os.Getenv("DB_HOST")
+	port = os.Getenv("DB_PORT")
+	name = os.Getenv("DB_NAME")
+
 	if host == "" {
 		host = "localhost"
 	}
-	port = os.Getenv("PG_PORT")
 	if port == "" {
 		port = "5432"
 	}
@@ -107,8 +110,8 @@ func (q *query) executeQuery() (rows pgx.Rows, conn *pgxpool.Conn, err error) {
 		spanCtx = context2.Background()
 	}
 	resultQuery := strings.Join(q.queryParts, " ") + ";"
-	u, p, h, prt := getDbConfig()
-	pool, err := connection.PerformConnection(spanCtx, q.database, u, p, h, prt)
+	u, p, h, prt, name := getDbConfig()
+	pool, err := connection.PerformConnection(spanCtx, name, u, p, h, prt)
 	if err != nil {
 		return rows, conn, err
 	}
