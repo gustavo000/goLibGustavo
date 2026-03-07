@@ -132,8 +132,8 @@ func (q *query) executeCommand() (commandTag pgconn.CommandTag, conn *pgxpool.Co
 		spanCtx = context2.Background()
 	}
 	resultQuery := strings.Join(q.queryParts, " ") + ";"
-	u, p, h, prt := getDbConfig()
-	pool, err := connection.PerformConnection(spanCtx, q.database, u, p, h, prt)
+	u, p, h, prt, name := getDbConfig()
+	pool, err := connection.PerformConnection(spanCtx, name, u, p, h, prt)
 	if err != nil {
 		return commandTag, conn, err
 	}
