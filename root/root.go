@@ -10,7 +10,7 @@ import (
 	"github.com/gustavo000/goLibGustavo/models/rest"
 )
 
-var service = []*properties.Service{
+var DefaultServices = []*properties.Service{
 	{
 		Name:    "Google",
 		Ingress: "http://www.google.com/",
@@ -18,8 +18,9 @@ var service = []*properties.Service{
 		Timeout: 30,
 	},
 }
+var InternalServices = []*properties.Service{}
 
-func InitServer(routes rest.Routes) {
+func InitServer(routes rest.Routes, services []*properties.Service) {
 	envs := getEnviroment()
 	properties.NewProperties(
 		properties.WithServiceName(envs["name"]),
@@ -29,7 +30,7 @@ func InitServer(routes rest.Routes) {
 		properties.WithRelease(envs["release"]),
 		properties.WithVersion(getCurrentVersion()),
 		properties.WithEnvironment(envs["defaultEnvironment"]),
-		properties.WithServices(service...))
+		properties.WithServices(services...))
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
 	net_http.StartHttp(routes)
 }

@@ -7,7 +7,7 @@ import (
 
 func main() {
 	//database.ConnectDb("g", "g", "localhost", "5432", "inventory")
-	allRoutes := append(routing.DefaultRoutes, routing.InternalRoutes...)
-	root.InitServer(allRoutes)
+
+	root.InitServer(append(routing.DefaultRoutes, routing.InternalRoutes...), append(root.DefaultServices, root.InternalServices...))
 
 }
