@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -15,20 +14,20 @@ var (
 // Initialize the logger with configuration
 func init() {
 	// Set time format to RFC3339
-	zerolog.TimeFieldFormat = zerolog.TimeFormatRFC3339
-	
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
+
 	// Configure console writer with pretty formatting for development
 	consoleWriter := zerolog.NewConsoleWriter(func(w *zerolog.ConsoleWriter) {
 		w.TimeFormat = "2006-01-02 15:04:05"
 	})
-	
+
 	// Create logger with console output
 	logger = zerolog.New(consoleWriter).
 		With().
 		Timestamp().
 		Caller().
 		Logger()
-	
+
 	// Set global log level
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }

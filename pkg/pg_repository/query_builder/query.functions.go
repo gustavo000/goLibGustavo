@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/gustavo000/goLibGustavo/pkg/functions"
-	"github.com/gustavo000/goLibGustavo/pkg/pg-repository/connection"
+	"github.com/gustavo000/goLibGustavo/pkg/pg_repository/connection"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 
