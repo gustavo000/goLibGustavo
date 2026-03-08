@@ -34,11 +34,7 @@ func SetIngress(url string, helperUrl rest.Url, service *properties.Service) str
 	if helperUrl.IngressForce != "" {
 		url += helperUrl.IngressForce
 	} else {
-		if properties.GetProperty().IsLocal() && !strings.Contains(service.Layer, "EXTERNAL") {
-			url += GetUrlByEnv()
-		} else {
-			url += service.Ingress
-		}
+		url += service.Ingress
 		url = strings.ReplaceAll(url, "{release}", properties.GetProperty().GetRelease())
 		url = strings.ReplaceAll(url, "{namespace}", properties.GetProperty().GetNamespace())
 	}
@@ -83,7 +79,7 @@ func SetQueryParams(url string, helperUrl rest.Url) string {
 
 func GetUrlByEnv() string {
 	env := properties.GetProperty().GetEnv()
-	url := "https://{env}-policyorch.ftc-cx.tech/{release}"
+	url := "https://{env}/{release}"
 	switch env {
 	case "TEST":
 		url = strings.ReplaceAll(url, "{env}", "uat")
