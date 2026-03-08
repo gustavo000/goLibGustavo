@@ -14,7 +14,7 @@ import (
 
 func GetClientBy(helperUrl rest.Url) *http_layer.HttpClient {
 	var url string
-	service := GetServiceByLayerAndName(helperUrl.LayerName, helperUrl.ServiceName)
+	service := GetServiceByLayerAndName(helperUrl.ServiceName)
 	if strings.Contains(service.Layer, "EXTERNAL") {
 		service.IsExternal = true
 	}
@@ -95,11 +95,11 @@ func GetUrlByEnv() string {
 	return url
 }
 
-func GetServiceByLayerAndName(layerName string, serviceName string) *properties.Service {
+func GetServiceByLayerAndName(serviceName string) *properties.Service {
 	var serviceResult *properties.Service
 	var serviceIndex int
 	for i, service := range properties.GetProperty().External.Services {
-		if strings.ToLower(service.Layer) == strings.ToLower(layerName) && strings.ToLower(service.Name) == strings.ToLower(serviceName) {
+		if strings.ToLower(service.Name) == strings.ToLower(serviceName) {
 			serviceResult = service
 			serviceIndex = i
 			break
