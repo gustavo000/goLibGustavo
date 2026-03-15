@@ -97,7 +97,7 @@ func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // Start the server
-func StartHttp(routes rest.Routes) {
+func StartHttp(routes rest.Routes, port string) {
 	// Create router
 	mux := http.NewServeMux()
 	for _, rt := range routes {
@@ -140,8 +140,9 @@ func StartHttp(routes rest.Routes) {
 	)
 
 	// Configure server
+
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         fmt.Sprintf(":%s", port),
 		Handler:      handler,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -149,7 +150,7 @@ func StartHttp(routes rest.Routes) {
 	}
 
 	// Start server (blocking)
-	log.Println("Server starting on :8080")
+	log.Println(fmt.Sprintf("Server starting on :%s", port))
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed: %v", err)
 	}

@@ -32,7 +32,7 @@ func InitServer(routes rest.Routes, services []*properties.Service) {
 		properties.WithEnvironment(envs["defaultEnvironment"]),
 		properties.WithServices(services...))
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
-	net_http.StartHttp(routes)
+	net_http.StartHttp(routes, properties.GetProperty().GetPort())
 }
 
 func getCurrentVersion() string {
@@ -47,7 +47,7 @@ func getCurrentVersion() string {
 
 func getEnviroment() map[string]string {
 	var res map[string]string
-	bytes, _ := os.ReadFile("environment/dev.properties.json")
+	bytes, _ := os.ReadFile("environment/local.properties.json")
 	err := json.Unmarshal(bytes, &res)
 	if err != nil {
 		return nil
