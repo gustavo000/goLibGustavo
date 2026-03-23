@@ -57,14 +57,23 @@ type App struct {
 // CORS middleware
 func (app *App) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Change this in production!
+		// 1. Get the origin from the request
+		origin := r.Header.Get("Origin")
+		
+		// 2. If an origin exists, echo it back (this allows 'any' URL)
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			// Fallback for non-browser requests
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		// 3. Add your custom "flags-headers" if you are using them!
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, flags-headers")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Max-Age", "3600")
 
-		// Handle preflight requests
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
 			return
@@ -73,6 +82,7 @@ func (app *App) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r)
 	}
 }
+
 
 // Error handler middleware
 func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
