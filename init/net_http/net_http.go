@@ -29,18 +29,6 @@ func DefaultConfig() *Config {
 	}
 }
 
-// NewApp creates a new application instance
-func NewApp(config *Config) *App {
-	if config == nil {
-		config = DefaultConfig()
-	}
-
-	return &App{
-		config: config,
-		router: http.NewServeMux(),
-	}
-}
-
 // ErrorResponse represents an error response
 type ErrorResponse struct {
 	Error   string `json:"error"`
@@ -53,36 +41,6 @@ type App struct {
 	config *Config
 	router *http.ServeMux
 }
-
-// CORS middleware
-func (app *App) corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// 1. Get the origin from the request
-		origin := r.Header.Get("Origin")
-		
-		// 2. If an origin exists, echo it back (this allows 'any' URL)
-		if origin != "" {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-		} else {
-			// Fallback for non-browser requests
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-		}
-
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		// 3. Add your custom "flags-headers" if you are using them!
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, flags-headers")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Max-Age", "3600")
-
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-
-		next(w, r)
-	}
-}
-
 
 // Error handler middleware
 func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {

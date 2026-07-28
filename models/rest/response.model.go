@@ -14,12 +14,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type Response struct {
-	Http  *http.Response
-	Mutex sync.Mutex
-	Body  any
-}
-
 type SpanInfo struct {
 	Span         trace.Span      `json:"-"`
 	SpanID       trace.SpanID    `json:"spanID"`
@@ -28,6 +22,12 @@ type SpanInfo struct {
 	Context      context.Context `json:"-"`
 	TraceID      trace.TraceID   `json:"traceID"`
 	ParentSpanID trace.SpanID    `json:"parentSpanID"`
+}
+
+type Response struct {
+	Http  *http.Response
+	Mutex sync.Mutex
+	Body  any
 }
 
 func (r *Response) WithStatus(status int) *Response {

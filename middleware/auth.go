@@ -12,6 +12,13 @@ const (
 	UserKey contextKey = "user"
 )
 
+func Auth2(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/login" {
+		}
+	})
+}
+
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Skip auth for public endpoints
