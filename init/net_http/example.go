@@ -131,17 +131,6 @@ func (app *App) jsonResponse(w http.ResponseWriter, status int, data interface{}
 	}
 }
 
-// Routes
-func (app *App) setupRoutes() {
-	// Apply middleware to routes
-	app.router.HandleFunc("/api/health", app.errorHandler(app.corsMiddleware(app.healthHandler)))
-	app.router.HandleFunc("/api/users", app.errorHandler(app.corsMiddleware(app.usersHandler)))
-	app.router.HandleFunc("/api/users/", app.errorHandler(app.corsMiddleware(app.userHandler)))
-
-	// Public route without auth (example)
-	app.router.HandleFunc("/", app.errorHandler(app.corsMiddleware(app.homeHandler)))
-}
-
 // Handlers
 func (app *App) healthHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
