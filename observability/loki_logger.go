@@ -95,7 +95,7 @@ func (l *LokiLogger) LogProductError(ctx context.Context, operation string, prod
 		Str("service", "bff-service").
 		Str("component", "products").
 		Err(err)
-
+/
 	if productID != nil {
 		event = event.Int("product_id", *productID)
 	}
