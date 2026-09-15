@@ -6,4 +6,5 @@ type Route struct {
 	Pattern    string
 	Controller Controller
 	Query      []string
+	Public     bool
 }

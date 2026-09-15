@@ -18,6 +18,7 @@ var DefaultRoutes = rest.Routes{
 	{
 		Method:  "GET",
 		Pattern: "/healthcheck",
+		Public:  true,
 		Controller: rest.Controller{
 			Name:        "HealthCheck",
 			Service:     health_check.CheckStatus,

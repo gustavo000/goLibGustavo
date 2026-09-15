@@ -70,7 +70,7 @@ func StartHttp(routes rest.Routes, port string) {
 	mux := http.NewServeMux()
 	for _, rt := range routes {
 		route := rt
-		mux.HandleFunc(fmt.Sprintf("%s %s", route.Method, route.Pattern), func(w http.ResponseWriter, r *http.Request) {
+		routeHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if route.Method != "" && r.Method != route.Method {
 				http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 				return
@@ -94,6 +94,12 @@ func StartHttp(routes rest.Routes, port string) {
 				_, _ = io.Copy(w, body)
 			}
 		})
+
+		var handler http.Handler = routeHandler
+		if !route.Public {
+			handler = middleware.Auth(handler)
+		}
+		mux.Handle(fmt.Sprintf("%s %s", route.Method, route.Pattern), handler)
 	}
 
 	// Apply middleware chain
@@ -104,7 +110,6 @@ func StartHttp(routes rest.Routes, port string) {
 		middleware.CORS,
 		middleware.Logging,
 		middleware.RateLimit(100, time.Minute),
-		middleware.Auth,
 	)
 
 	// Configure server
@@ -118,7 +123,7 @@ func StartHttp(routes rest.Routes, port string) {
 	}
 
 	// Start server (blocking)
-	log.Println(fmt.Sprintf("Server starting on :%s", port))
+	log.Printf("Server starting on :%s", port)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed: %v", err)
 	}
