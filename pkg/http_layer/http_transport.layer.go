@@ -11,7 +11,6 @@ import (
 
 	"github.com/gustavo000/goLibGustavo/models/properties"
 	"github.com/gustavo000/goLibGustavo/models/rest"
-	"github.com/gustavo000/goLibGustavo/pkg/logger"
 
 	"github.com/google/uuid"
 	"github.com/gustavo000/goLibGustavo/constants/constants_headers"
@@ -168,18 +167,8 @@ func (h *HttpClient) PerformHttpRequest(method string) *rest.Response {
 	req.GetBody = h.GetBody
 	req.Header = h.SetRequestHeaders(req.Header, h.HttpRequest, h.Headers)
 
-	if req.Context() != nil && h.Context != nil {
-		logger.Info("HOLA")
-	}
-
-	if h.IsExternalService {
-		logger.Info("HOLA")
-	}
 	resp, errClient := h.Client.Do(req)
 	if errClient != nil {
-		if h.IsExternalService {
-			logger.Info("HOLA")
-		}
 
 		if strings.Contains(errClient.Error(), "Client.Timeout") {
 			return functions.GenerateHttpResponse(http.StatusRequestTimeout, errClient.Error())
@@ -187,14 +176,8 @@ func (h *HttpClient) PerformHttpRequest(method string) *rest.Response {
 		return functions.GenerateHttpResponse(http.StatusInternalServerError, errClient.Error())
 	}
 	if resp == nil {
-		if h.IsExternalService {
-			logger.Info("HOLA")
-		}
 		return functions.GenerateHttpResponse(http.StatusInternalServerError, "can't get response from URL "+h.Url)
 	}
 	resp.Header.Set(constants_headers.EXT_REQUEST_ID, req.Header.Get("Ext-Request-Id"))
-	if h.IsExternalService {
-		logger.Info("HOLA")
-	}
 	return &rest.Response{Http: resp}
 }
