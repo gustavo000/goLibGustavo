@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gustavo000/goLibGustavo/constants"
 	"github.com/gustavo000/goLibGustavo/middleware"
 	"github.com/gustavo000/goLibGustavo/models/rest"
 )
@@ -68,6 +69,8 @@ func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
 func StartHttp(routes rest.Routes, port string) {
 	// Create router
 	mux := http.NewServeMux()
+	// Public routes stay open, so the same visitor gets a tighter cap there.
+	publicLimit := middleware.RateLimit(constants.PUBLIC_RATE_LIMIT, time.Minute)
 	for _, rt := range routes {
 		route := rt
 		routeHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +99,9 @@ func StartHttp(routes rest.Routes, port string) {
 		})
 
 		var handler http.Handler = routeHandler
-		if !route.Public {
+		if route.Public {
+			handler = publicLimit(handler)
+		} else {
 			handler = middleware.Auth(handler)
 		}
 		mux.Handle(fmt.Sprintf("%s %s", route.Method, route.Pattern), handler)
@@ -109,7 +114,7 @@ func StartHttp(routes rest.Routes, port string) {
 		middleware.RequestID,
 		middleware.CORS,
 		middleware.Logging,
-		middleware.RateLimit(100, time.Minute),
+		middleware.RateLimit(constants.PRIVATE_RATE_LIMIT, time.Minute),
 	)
 
 	// Configure server

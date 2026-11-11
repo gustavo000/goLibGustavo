@@ -12,7 +12,7 @@ func RateLimit(requests int, duration time.Duration) Middleware {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			clientIP := r.RemoteAddr
+			clientIP := ClientIP(r)
 			if !rateLimiter.Allow(clientIP) {
 				http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
 				return
