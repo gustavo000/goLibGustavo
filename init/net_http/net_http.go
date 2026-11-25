@@ -7,10 +7,13 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/gustavo000/goLibGustavo/constants"
 	"github.com/gustavo000/goLibGustavo/middleware"
+	"github.com/gustavo000/goLibGustavo/models/properties"
 	"github.com/gustavo000/goLibGustavo/models/rest"
 )
 
@@ -67,15 +70,56 @@ func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// rateLimit reads the per-minute cap from the environment, falling back to
-// the package default when the variable is missing or not a positive number.
-func rateLimit(envName string, fallback int) int {
-	if raw := os.Getenv(envName); raw != "" {
-		if n, err := strconv.Atoi(raw); err == nil && n > 0 {
-			return n
+// rateLimitEnvNames returns the env vars to try, most specific first:
+// RATE_LIMIT_<SERVICE>_<KIND> (per microservice), then <KIND>_RATE_LIMIT.
+func rateLimitEnvNames(kind string) []string {
+	names := []string{}
+	if props := properties.GetProperty(); props != nil {
+		if service := sanitizeEnvSegment(props.GetName()); service != "" {
+			names = append(names, fmt.Sprintf("RATE_LIMIT_%s_%s", service, kind))
 		}
 	}
+	return append(names, kind+"_RATE_LIMIT")
+}
+
+// sanitizeEnvSegment makes a service name safe for use inside an env var name.
+func sanitizeEnvSegment(s string) string {
+	var b strings.Builder
+	for _, r := range strings.ToUpper(s) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			b.WriteRune(r)
+		} else {
+			b.WriteRune('_')
+		}
+	}
+	return b.String()
+}
+
+// rateLimit resolves the per-minute cap. Precedence:
+// service-scoped env var (RATE_LIMIT_<SERVICE>_<KIND>), generic env var
+// (<KIND>_RATE_LIMIT), the value from environment/*.properties.json, and
+// finally the package constant.
+func rateLimit(kind string, configured, fallback int) int {
+	for _, name := range rateLimitEnvNames(kind) {
+		if raw := os.Getenv(name); raw != "" {
+			if n, err := strconv.Atoi(raw); err == nil && n > 0 {
+				return n
+			}
+		}
+	}
+	if configured > 0 {
+		return configured
+	}
 	return fallback
+}
+
+// configuredRateLimits returns the public/private caps from the properties
+// file, or zero when properties were not initialized.
+func configuredRateLimits() (public, private int) {
+	if props := properties.GetProperty(); props != nil {
+		return props.GetPublicRateLimit(), props.GetPrivateRateLimit()
+	}
+	return 0, 0
 }
 
 // Start the server
@@ -83,7 +127,8 @@ func StartHttp(routes rest.Routes, port string) {
 	// Create router
 	mux := http.NewServeMux()
 	// Public routes stay open, so the same visitor gets a tighter cap there.
-	publicLimit := middleware.RateLimit(rateLimit("PUBLIC_RATE_LIMIT", constants.PUBLIC_RATE_LIMIT), time.Minute)
+	publicConfigured, privateConfigured := configuredRateLimits()
+	publicLimit := middleware.RateLimit(rateLimit("PUBLIC", publicConfigured, constants.PUBLIC_RATE_LIMIT), time.Minute)
 	methodsByPattern := map[string][]string{}
 	for _, rt := range routes {
 		route := rt
@@ -137,7 +182,7 @@ func StartHttp(routes rest.Routes, port string) {
 		middleware.RequestID,
 		middleware.CORS,
 		middleware.Logging,
-		middleware.RateLimit(rateLimit("PRIVATE_RATE_LIMIT", constants.PRIVATE_RATE_LIMIT), time.Minute),
+		middleware.RateLimit(rateLimit("PRIVATE", privateConfigured, constants.PRIVATE_RATE_LIMIT), time.Minute),
 	)
 
 	// Configure server

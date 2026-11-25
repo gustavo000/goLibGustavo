@@ -21,6 +21,9 @@ type InternalProperties struct {
 	Name           string
 	Version        string
 	AuthMiddleware bool
+	// Rate limits (requests per minute). Zero means "use env var or constant".
+	PublicRateLimit  int
+	PrivateRateLimit int
 }
 
 type ExternalProperties struct {
@@ -101,6 +104,18 @@ func WithRelease(defaultValue string) PropsOption {
 	}
 }
 
+func WithPublicRateLimit(v int) PropsOption {
+	return func(properties *Properties) {
+		properties.Internal.PublicRateLimit = v
+	}
+}
+
+func WithPrivateRateLimit(v int) PropsOption {
+	return func(properties *Properties) {
+		properties.Internal.PrivateRateLimit = v
+	}
+}
+
 func WithNameSpace(defaultValue string) PropsOption {
 	return func(properties *Properties) {
 		properties.Internal.Server.Namespace = defaultValue
@@ -149,6 +164,14 @@ func (p Properties) GetBasePath() string {
 
 func (p Properties) GetVersion() string {
 	return p.Internal.Version
+}
+
+func (p Properties) GetPublicRateLimit() int {
+	return p.Internal.PublicRateLimit
+}
+
+func (p Properties) GetPrivateRateLimit() int {
+	return p.Internal.PrivateRateLimit
 }
 
 func (p Properties) GetCustomTag(tag string) any {

@@ -20,16 +20,30 @@ var DefaultServices = []*properties.Service{
 }
 var InternalServices = []*properties.Service{}
 
+// environmentFile mirrors the structure of environment/*.properties.json.
+type environmentFile struct {
+	Name               string `json:"name"`
+	BasePath           string `json:"basePath"`
+	Port               string `json:"port"`
+	Namespace          string `json:"namespace"`
+	Release            string `json:"release"`
+	DefaultEnvironment string `json:"defaultEnvironment"`
+	PublicRateLimit    int    `json:"publicRateLimit"`
+	PrivateRateLimit   int    `json:"privateRateLimit"`
+}
+
 func InitServer(routes rest.Routes, services []*properties.Service) {
 	envs := getEnviroment()
 	properties.NewProperties(
-		properties.WithServiceName(envs["name"]),
-		properties.WithBasePath(envs["basePath"]),
-		properties.WithPort(envs["port"]),
-		properties.WithNameSpace(envs["namespace"]),
-		properties.WithRelease(envs["release"]),
+		properties.WithServiceName(envs.Name),
+		properties.WithBasePath(envs.BasePath),
+		properties.WithPort(envs.Port),
+		properties.WithNameSpace(envs.Namespace),
+		properties.WithRelease(envs.Release),
 		properties.WithVersion(getCurrentVersion()),
-		properties.WithEnvironment(envs["defaultEnvironment"]),
+		properties.WithEnvironment(envs.DefaultEnvironment),
+		properties.WithPublicRateLimit(envs.PublicRateLimit),
+		properties.WithPrivateRateLimit(envs.PrivateRateLimit),
 		properties.WithServices(services...))
 	external_services.GetEndpointsOfServices(properties.GetProperty().GetEnv())
 	net_http.StartHttp(routes, properties.GetProperty().GetPort())
@@ -45,12 +59,12 @@ func getCurrentVersion() string {
 	return res["version"]
 }
 
-func getEnviroment() map[string]string {
-	var res map[string]string
+func getEnviroment() environmentFile {
+	var res environmentFile
 	bytes, _ := os.ReadFile("environment/local.properties.json")
 	err := json.Unmarshal(bytes, &res)
 	if err != nil {
-		return nil
+		return environmentFile{}
 	}
 	return res
 }
