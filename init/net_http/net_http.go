@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/gustavo000/goLibGustavo/constants"
@@ -65,12 +67,24 @@ func (app *App) errorHandler(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// rateLimit reads the per-minute cap from the environment, falling back to
+// the package default when the variable is missing or not a positive number.
+func rateLimit(envName string, fallback int) int {
+	if raw := os.Getenv(envName); raw != "" {
+		if n, err := strconv.Atoi(raw); err == nil && n > 0 {
+			return n
+		}
+	}
+	return fallback
+}
+
 // Start the server
 func StartHttp(routes rest.Routes, port string) {
 	// Create router
 	mux := http.NewServeMux()
 	// Public routes stay open, so the same visitor gets a tighter cap there.
-	publicLimit := middleware.RateLimit(constants.PUBLIC_RATE_LIMIT, time.Minute)
+	publicLimit := middleware.RateLimit(rateLimit("PUBLIC_RATE_LIMIT", constants.PUBLIC_RATE_LIMIT), time.Minute)
+	methodsByPattern := map[string][]string{}
 	for _, rt := range routes {
 		route := rt
 		routeHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -105,6 +119,15 @@ func StartHttp(routes rest.Routes, port string) {
 			handler = middleware.Auth(handler)
 		}
 		mux.Handle(fmt.Sprintf("%s %s", route.Method, route.Pattern), handler)
+		methodsByPattern[route.Pattern] = append(methodsByPattern[route.Pattern], route.Method)
+	}
+	for pattern, methods := range methodsByPattern {
+		allow := middleware.AllowMethods(methods)
+		mux.HandleFunc("OPTIONS "+pattern, func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Methods", allow)
+			w.Header().Set("Allow", allow)
+			w.WriteHeader(http.StatusNoContent)
+		})
 	}
 
 	// Apply middleware chain
@@ -114,7 +137,7 @@ func StartHttp(routes rest.Routes, port string) {
 		middleware.RequestID,
 		middleware.CORS,
 		middleware.Logging,
-		middleware.RateLimit(constants.PRIVATE_RATE_LIMIT, time.Minute),
+		middleware.RateLimit(rateLimit("PRIVATE_RATE_LIMIT", constants.PRIVATE_RATE_LIMIT), time.Minute),
 	)
 
 	// Configure server

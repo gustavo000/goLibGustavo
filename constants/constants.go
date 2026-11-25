@@ -16,7 +16,7 @@ const (
 	QUERY_SYNTAX   = "query.syntax"
 
 	// Public routes allow this many requests per minute for one visitor.
-	PUBLIC_RATE_LIMIT = 40
+	PUBLIC_RATE_LIMIT = 120
 	// Every route, including private ones, allows this many requests per minute for one visitor.
-	PRIVATE_RATE_LIMIT = 40
+	PRIVATE_RATE_LIMIT = 300
 )
